@@ -12,17 +12,19 @@ closeButton.disabled = true;
 startButton.onclick = createConnection;
 sendButton.onclick = sendData;
 closeButton.onclick = closeDataChannels;
+
 //Utility function for logging information to the JavaScript console
 function log(text) {
     console.log("At time: " + (performance.now() / 1000).toFixed(3) +
         " --> " + text);
 }
+
 function createConnection() {
     // Chrome
     if (navigator.webkitGetUserMedia) {
         RTCPeerConnection = webkitRTCPeerConnection;
         // Firefox
-    } else if(navigator.mozGetUserMedia){
+    } else if (navigator.mozGetUserMedia) {
         RTCPeerConnection = mozRTCPeerConnection;
         RTCSessionDescription = mozRTCSessionDescription;
         RTCIceCandidate = mozRTCIceCandidate;
@@ -37,22 +39,22 @@ function createConnection() {
     var pc_constraints = {
         'optional': [
             {'DtlsSrtpKeyAgreement': true}
-        ]};
+        ]
+    };
     // Create the local PeerConnection object...
     // ...with data channels
-    localPeerConnection = new RTCPeerConnection(servers,pc_constraints);
+    localPeerConnection = new RTCPeerConnection(servers, pc_constraints);
     log("Created local peer connection object, with Data Channel");
     try {
         // Note: SCTP-based reliable DataChannels supported
         // in Chrome 29+ !
         // use {reliable: false} if you have an older version of Chrome
         sendChannel = localPeerConnection.createDataChannel(
- "sendDataChannel",{reliable: true});
+            "sendDataChannel", {reliable: true});
         log('Created reliable send data channel');
     } catch (e) {
         alert('Failed to create data channel!');
-        log('createDataChannel() failed with following message: '
- + e.message);
+        log('createDataChannel() failed with following message: ' + e.message);
     }
     // Associate handlers with peer connection ICE events
     localPeerConnection.onicecandidate = gotLocalCandidate;
@@ -67,20 +69,23 @@ function createConnection() {
     // ...and data channel creation event
     remotePeerConnection.ondatachannel = gotReceiveChannel;
     // We're all set! Let's start negotiating a session...
-    localPeerConnection.createOffer(gotLocalDescription,onSignalingError);
+    localPeerConnection.createOffer(gotLocalDescription, onSignalingError);
     // Disable Start button and enable Close button
     startButton.disabled = true;
     closeButton.disabled = false;
 }
+
 function onSignalingError(error) {
     console.log('Failed to create signaling message : ' + error.name);
 }
+
 // Handler for sending data to the remote peer
 function sendData() {
     var data = document.getElementById("dataChannelSend").value;
     sendChannel.send(data);
     log('Sent data: ' + data);
 }
+
 // Close button handler
 function closeDataChannels() {
     // Close channels...
@@ -106,6 +111,7 @@ function closeDataChannels() {
     dataChannelSend.placeholder = "1: Press Start; 2: Enter text; \
  3: Press Send.";
 }
+
 // Handler to be called as soon as the local SDP is made available to
 // the application
 function gotLocalDescription(desc) {
@@ -115,8 +121,9 @@ function gotLocalDescription(desc) {
     log('localPeerConnection\'s SDP: \n' + desc.sdp);
     remotePeerConnection.setRemoteDescription(desc);
     // Create answer from the remote party, based on the local SDP
-    remotePeerConnection.createAnswer(gotRemoteDescription,onSignalingError);
+    remotePeerConnection.createAnswer(gotRemoteDescription, onSignalingError);
 }
+
 // Handler to be called as soon as the remote SDP is made available to
 // the application
 function gotRemoteDescription(desc) {
@@ -126,6 +133,7 @@ function gotRemoteDescription(desc) {
     log('Answer from remotePeerConnection\'s SDP: \n' + desc.sdp);
     localPeerConnection.setRemoteDescription(desc);
 }
+
 // Handler to be called whenever a new local ICE candidate becomes available
 function gotLocalCandidate(event) {
     log('local ice callback');
@@ -134,6 +142,7 @@ function gotLocalCandidate(event) {
         log('Local ICE candidate: \n' + event.candidate.candidate);
     }
 }
+
 // Handler to be called whenever a new remote ICE candidate becomes available
 function gotRemoteIceCandidate(event) {
     log('remote ice callback');
@@ -142,6 +151,7 @@ function gotRemoteIceCandidate(event) {
         log('Remote ICE candidate: \n ' + event.candidate.candidate);
     }
 }
+
 // Handler associated with the management of remote peer connection's
 // data channel events
 function gotReceiveChannel(event) {
@@ -150,9 +160,11 @@ function gotReceiveChannel(event) {
     receiveChannel = event.channel;
     // Set handlers for the following events:
     // (i) open; (ii) message; (iii) close
-    receiveChannel.onopen = handleReceiveChannelStateChange;receiveChannel.onmessage = handleMessage;
+    receiveChannel.onopen = handleReceiveChannelStateChange;
+    receiveChannel.onmessage = handleMessage;
     receiveChannel.onclose = handleReceiveChannelStateChange;
 }
+
 // Message event handler
 function handleMessage(event) {
     log('Received message: ' + event.data);
@@ -161,6 +173,7 @@ function handleMessage(event) {
     // Clean 'Send' text area in the HTML page
     document.getElementById("dataChannelSend").value = '';
 }
+
 // Handler for either 'open' or 'close' events on sender's data channel
 function handleSendChannelStateChange() {
     var readyState = sendChannel.readyState;
@@ -181,6 +194,7 @@ function handleSendChannelStateChange() {
         closeButton.disabled = true;
     }
 }
+
 // Handler for either 'open' or 'close' events on receiver's data channel
 function handleReceiveChannelStateChange() {
     var readyState = receiveChannel.readyState;

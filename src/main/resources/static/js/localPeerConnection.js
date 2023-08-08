@@ -85,7 +85,7 @@ function call() {
     log("RTCPeerConnection object: " + RTCPeerConnection);
     // This is an optional configuration string, associated with
     // NAT traversal setup
-    var servers = null;
+    var servers = peerConnectionConfig;
     // Create the local PeerConnection object
     localPeerConnection = new RTCPeerConnection(servers);
     log("Created local peer connection object localPeerConnection");
@@ -155,7 +155,7 @@ function hangup() {
 // Handler to be called as soon as the remote stream becomes available
 function gotRemoteStream(event) {
 
-        remoteVideo.srcObject = event.stream
+    remoteVideo.srcObject = event.stream
 
     log("Received remote stream");
 }

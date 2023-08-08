@@ -7,15 +7,18 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import java.io.IOException;
-
 @Configuration
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-        webSocketHandlerRegistry.addHandler(new SocketHandler(), "/socket").setAllowedOrigins("*");
+        webSocketHandlerRegistry.addHandler(signalingSocketHandle(), "/room");
+    }
+
+    @Bean
+    public WebSocketHandler signalingSocketHandle() {
+        return new SignalingSocketHandler();
     }
 
 
